@@ -1,5 +1,6 @@
 import React, {Component, Fragment} from 'react';
-import {StyleSheet, View, Image, StatusBar, AsyncStorage, TouchableHighlight} from 'react-native';
+import {StyleSheet, View, Image, StatusBar, TouchableHighlight} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Text, Avatar, Badge} from 'react-native-elements';
 import GlobalStyle from '@styles/global';
 import ModalMenu from '@components/Modals/ModalMenu';

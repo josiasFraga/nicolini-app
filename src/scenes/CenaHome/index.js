@@ -3,9 +3,9 @@ import {
 	StyleSheet,
 	View,
 	StatusBar,
-	AsyncStorage,
 	Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Button, Text, Icon, Image } from 'react-native-elements';
 import {Actions, ActionConst} from 'react-native-router-flux';
 import GlobalStyle from '@styles/global';
@@ -63,6 +63,42 @@ export default class CenaHome extends Component<Props> {
 							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
 							title="Separação Central"
 							onPress={() => { Actions.separacaoCentral(); }}
+						/>
+					</View>
+					<View style={styles.innerSpace}>
+						<Button
+							icon={
+								<View style={{marginRight: 20}}>
+								<Icon
+								name="barcode"
+								size={20}
+								type='antdesign'
+								iconStyle={{color: COLORS.secondary}}
+								/>
+								</View>
+							}
+							titleStyle={{}}
+							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
+							title="Coletagem Invert"
+							onPress={() => { Actions.coletagemInvert(); }}
+						/>
+					</View>
+					<View style={styles.innerSpace}>
+						<Button
+							icon={
+								<View style={{marginRight: 20}}>
+								<Icon
+								name="player-settings"
+								size={20}
+								type='fontisto'
+								iconStyle={{color: COLORS.secondary}}
+								/>
+								</View>
+							}
+							titleStyle={{}}
+							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
+							title="Configurações"
+							onPress={() => { Actions.configs(); }}
 						/>
 					</View>
 				</View>

@@ -98,6 +98,10 @@ const INITIAL_STATE = {
   central_collection_data: {
     n_itens: 0,
     n_uniqe_itens: 0,
+  },
+  invert_collection_data: {
+    n_itens: 0,
+    n_uniqe_itens: 0,
   }
 };
 
@@ -205,6 +209,8 @@ export const appReducer = (state = INITIAL_STATE, action) => {
 		return {...state, single_collection_data: action.payload};
     case 'SET_CENTRAL_COLLECTION_DATA':
 		return {...state, central_collection_data: action.payload};
+    case 'SET_INVERT_COLLECTION_DATA':
+		return {...state, invert_collection_data: action.payload};
     default:
 		return state;
   }

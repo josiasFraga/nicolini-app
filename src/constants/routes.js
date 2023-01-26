@@ -6,8 +6,11 @@ import CenaHome from '@scenes/CenaHome';
 import CenaSplash from '@scenes/CenaSplash';
 import CenaColetagemAvulsa from '@scenes/CenaColetagemAvulsa';
 import CenaSeparacaoCentral from '@scenes/CenaSeparacaoCentral';
+import CenaConfigs from '@scenes/CenaConfigs';
 import ModalBarcodeReader from '@components/Modals/ModalBarcodeReader';
 import ModalExportar from '@components/Modals/ModalExportar';
+import CenaColetagemInvert from '@scenes/CenaColetagemInvert';
+import CenaListaItensLidos from '@scenes/CenaListaItensLidos';
 
 class Routes extends React.Component {
   render() {
@@ -43,16 +46,27 @@ class Routes extends React.Component {
             hideNavBar={true}
           />
 
-          <Modal key="modalBarcodeReader" hideNavBar={true} lazy={true}>
+          <Scene
+            key="coletagemInvert"
+            title="Coletagem Invert"
+            component={CenaColetagemInvert}
+            hideNavBar={true}
+          />
+
+          <Scene
+            key="listaItensLidos"
+            title="Listagem de Itens"
+            component={CenaListaItensLidos}
+            hideNavBar={true}
+          />
+
             <Scene
-              key="root"
+              key="modalBarcodeReader"
               title="Barcode Reader"
               component={ModalBarcodeReader}
               hideNavBar={true}
               lazy={true}
-              hideTabBar={true}
             />
-          </Modal>
 
           <Modal key="modalExportar" hideNavBar={true} lazy={true}>
             <Scene
@@ -61,9 +75,15 @@ class Routes extends React.Component {
               component={ModalExportar}
               hideNavBar={true}
               lazy={true}
-              hideTabBar={true}
             />
           </Modal>
+
+          <Scene
+            key="configs"
+            title="Configuracoes"
+            component={CenaConfigs}
+            hideNavBar={true}
+          />
 
         </Stack>
       </Router>

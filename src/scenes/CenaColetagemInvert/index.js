@@ -15,10 +15,7 @@ import AlertHelper from '@components/Alert/AlertHelper';
 import Header from '@components/Header';
 var RNFS = require('react-native-fs');
 import DocumentPicker, {
-	DirectoryPickerResponse,
-	DocumentPickerResponse,
 	isInProgress,
-	types,
   } from 'react-native-document-picker'
 
 import IMAGES from '@constants/images';
@@ -27,7 +24,7 @@ import COLORS from '@constants/colors';
 import { connect} from 'react-redux';
 
 type Props = {};
-export class CenaSeparacaoCentral extends Component<Props> {
+export class CenaColetagemInvert extends Component<Props> {
 
 	constructor(props) {
 		super(props);
@@ -37,20 +34,20 @@ export class CenaSeparacaoCentral extends Component<Props> {
 		};
 	}
 
-    componentDidMount = async () => {
+    componentDidMount = () => {
         this.props.loadData();
-		await this.checkUploadedFile();
+		this.checkUploadedFile();
     }
 
 	checkUploadedFile = async () => {
 		
-		const value = await AsyncStorage.getItem('UPLOADED_FILE_CENTRAL_COLLECTION');
+		const value = await AsyncStorage.getItem('UPLOADED_FILE_INVERT_COLLECTION');
+		
 		if (value !== null) {
-		  let data = JSON.parse(value);
-		  this.setState({file_data_n_itens: data.length, file_data: data});
+		  	let data = JSON.parse(value);
+		  	this.setState({file_data_n_itens: data.length, file_data: data});
 		} else {
 			this.setState({file_data_n_itens: 0, file_data: []});
-
 		}
 	}
 
@@ -66,10 +63,9 @@ export class CenaSeparacaoCentral extends Component<Props> {
 	}
 
 	uploadFile = async (file) => {
-		console.log(file);
 		const type = file[0].type;
 
-		if ( type != "application/octet-stream" ) {
+		if ( type != "text/plain" ) {
 
 			AlertHelper.show(
 				'info',
@@ -88,36 +84,28 @@ export class CenaSeparacaoCentral extends Component<Props> {
 
 		content_lines.map((ct) => {
 
-			if ( ct.length < 87 ) {
+			if ( ct.length < 83 ) {
 				ignored_items.push(ct);
 				return false;
 			}
 
-			let loja = ct.substring(0, 4);
-			let pedido = ct.substring(4, 10);
-			let cod_interno = ct.substring(10, 28);
-			let cod_barras = ct.substring(28, 41);
-			let produto = ct.substring(41, 73);
-			let quatidade = ct.substring(73, 79);
-			let rest = ct.substring(79, 87);
+			let cod_barras = ct.substring(0, 13);
+			let cod_interno = ct.substring(14, 23);
+			let produto = ct.substring(24, 75);
+			let rest = ct.substring(75, 83);
 
-			if ( loja != "" ) {
-				content_to_save.push({
-					loja: loja,
-					pedido: pedido,
-					cod_interno: cod_interno.trim(),
-					cod_barras: cod_barras,
-					produto: produto.trim(),
-					qtd: quatidade,
-					rest: rest,
-				});
-			}
+			content_to_save.push({
+				cod_barras: cod_barras,
+				cod_interno: cod_interno.trim(),
+				produto: produto.trim(),
+				rest: rest,
+			});
 		})
 
 		if ( content_to_save.length > 0 ) {
 
             await AsyncStorage.setItem(
-              'UPLOADED_FILE_CENTRAL_COLLECTION',
+              'UPLOADED_FILE_INVERT_COLLECTION',
               JSON.stringify(content_to_save)
             );
 
@@ -163,7 +151,7 @@ export class CenaSeparacaoCentral extends Component<Props> {
 					backgroundColor={'transparent'}
 					barStyle={'dark-content'}
 				/>
-                <Header backButton={true} titulo={"Separação Central"} />
+                <Header backButton={true} titulo={"Coletagem Invert"} />
                 <View style={{ backgroundColor: COLORS.primary}}>
 					<Text style={{color: "#FFF", textAlign: "center", fontSize: 18, paddingTop: 10, textTransform: "uppercase"}}>Produtos</Text>
 					<View style={[GlobalStyle.row, { justifyContent: "space-around", alignItems: "center"}]}>
@@ -200,7 +188,25 @@ export class CenaSeparacaoCentral extends Component<Props> {
 							titleStyle={{}}
 							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
 							title="Ler código de barras"
-							onPress={() => { Actions.modalBarcodeReader({origin: "separacao_central"}); }}
+							onPress={() => { Actions.modalBarcodeReader({origin: "coletagem_invert"}); }}
+						/>
+					</View>
+					<View style={styles.innerSpace}>
+						<Button
+							icon={
+								<View style={{marginRight: 20}}>
+								<Icon
+								name="list"
+								size={20}
+								type='feather'
+								iconStyle={{color: COLORS.secondary}}
+								/>
+								</View>
+							}
+							titleStyle={{}}
+							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
+							title="Visualizar itens escaneados"
+							onPress={() => { Actions.listaItensLidos({origin: "coletagem_invert"}); }}
 						/>
 					</View>
 					<View style={styles.innerSpace}>
@@ -220,7 +226,7 @@ export class CenaSeparacaoCentral extends Component<Props> {
 							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
 							type='outline'
 							title="Exportar registros"
-							onPress={() => Actions.modalExportar({origin: "separacao_central"})}
+							onPress={() => Actions.modalExportar({origin: "coletagem_invert"})}
 						/>
 					</View>
 					<View style={styles.innerSpace}>
@@ -250,7 +256,7 @@ export class CenaSeparacaoCentral extends Component<Props> {
 										style: "cancel"
 									  },
 									  { text: "Tenho", onPress: () => {
-										AsyncStorage.removeItem('CODIGOS_CENTRAL');
+										AsyncStorage.removeItem('CODIGOS_INVERT');
 										AlertHelper.show(
 											'success',
 											'Tudo certo',
@@ -291,8 +297,8 @@ export class CenaSeparacaoCentral extends Component<Props> {
 										style: "cancel"
 									  },
 									  { text: "Tenho", onPress: async () => {
-										await AsyncStorage.removeItem('CODIGOS_CENTRAL');
-										await AsyncStorage.removeItem('UPLOADED_FILE_CENTRAL_COLLECTION');
+										await AsyncStorage.removeItem('CODIGOS_INVERT');
+										await AsyncStorage.removeItem('UPLOADED_FILE_INVERT_COLLECTION');
 										this.props.loadData();
 										this.checkUploadedFile();
 										AlertHelper.show(
@@ -329,7 +335,7 @@ export class CenaSeparacaoCentral extends Component<Props> {
 						
 						buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
 						type='outline'
-						title="Importar Pedido"
+						title="Importar Arquivo"
 						onPress={async () => {
 								try {
 									const pickerResult = await DocumentPicker.pickSingle({
@@ -415,17 +421,17 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => ({
-	collection_data: state.appReducer.central_collection_data
+	collection_data: state.appReducer.invert_collection_data
 });
 
 
 const mapDispatchToProps = dispatch => ({
     loadData() {
         dispatch({
-            type: 'LOAD_CENTRAL_COLLECTION_DATA',
+            type: 'LOAD_INVERT_COLLECTION_DATA',
             payload: {}
         })
     },
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(CenaSeparacaoCentral);
+export default connect(mapStateToProps, mapDispatchToProps)(CenaColetagemInvert);

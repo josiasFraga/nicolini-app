@@ -1,4 +1,5 @@
-import {AsyncStorage, PermissionsAndroid, Platform} from 'react-native';
+import {PermissionsAndroid, Platform} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {call, put, takeEvery, takeLatest} from 'redux-saga/effects';
 import {callApi} from '@services/api';
 import AlertHelper from '@components/Alert/AlertHelper';
@@ -2535,6 +2536,63 @@ function* loadCentralCollectionData({payload}) {
 
 }
 
+function* loadInvertCollectionData({payload}) {
+
+	console.log('carregando dados da coletagem invert');
+	const value = yield AsyncStorage.getItem('CODIGOS_INVERT');
+
+	if (value !== null) {
+	  // We have data!!
+	  let codigos = JSON.parse(value);
+	  let total_itens = 0;
+	  let uniqe_itens = 0;
+
+	  let aggrupedItens = []
+	  aggrupedItens = Object.values(codigos.reduce((acc, item) => {
+		if (!acc[item.barcodescanned]) {
+			acc[item.barcodescanned] = {
+				barcodescanned: item.barcodescanned,
+				qtd: parseFloat(item.qtd),
+			};
+		} else {
+			acc[item.barcodescanned].qtd += parseFloat(item.qtd);
+		}
+		return acc;
+	  }, {}))
+
+		
+
+		yield aggrupedItens.map( async (codigo) => {
+			total_itens += codigo.qtd;
+		});
+
+		uniqe_itens = aggrupedItens.length;
+
+		yield put({
+			type: 'SET_INVERT_COLLECTION_DATA',
+			payload: {
+				n_itens: total_itens,
+				n_uniqe_itens: uniqe_itens,
+			},
+		});
+
+		console.log("Carregou os dados");
+
+	} else {
+		yield put({
+			type: 'SET_INVERT_COLLECTION_DATA',
+			payload: {
+				n_itens: 0,
+				n_uniqe_itens: 0,
+			},
+		});
+
+		console.log("Não achou dados lidos");
+	}
+
+
+}
+
 export default function* () {
 	yield takeLatest('REGISTRAR', registrar);
 	yield takeLatest('LOGIN_TRIGGER', login);
@@ -2590,6 +2648,11 @@ export default function* () {
 	yield takeLatest(
 	'LOAD_CENTRAL_COLLECTION_DATA',
 	loadCentralCollectionData,
+	);
+
+	yield takeLatest(
+	'LOAD_INVERT_COLLECTION_DATA',
+	loadInvertCollectionData,
 	);
 
 }

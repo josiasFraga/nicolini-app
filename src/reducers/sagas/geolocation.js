@@ -1,4 +1,5 @@
-import { AsyncStorage, PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { channel } from 'redux-saga';
 import { call, put, takeEvery, takeLatest, select, take, fork } from 'redux-saga/effects';
 import { callApi } from '@services/api';

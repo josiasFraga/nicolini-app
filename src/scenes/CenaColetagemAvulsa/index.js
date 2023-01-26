@@ -4,9 +4,9 @@ import {
 	StyleSheet,
 	View,
 	StatusBar,
-	AsyncStorage,
 	Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {Button, Text, Icon, Image } from 'react-native-elements';
 import {Actions, ActionConst} from 'react-native-router-flux';
@@ -61,7 +61,7 @@ export class CenaColetagemAvulsa extends Component<Props> {
 							titleStyle={{}}
 							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
 							title="Ler código de barras"
-							onPress={() => { Actions.modalBarcodeReader(); }}
+							onPress={() => { Actions.modalBarcodeReader({origin: "avulsa"}); }}
 						/>
 					</View>
 					<View style={styles.innerSpace}>

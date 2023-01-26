@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, SafeAreaView } from 'react-native';
+import { Text, View, SafeAreaView, AsyncStorage, Keyboard } from 'react-native';
 import { Button } from 'react-native-elements';
 import { RNCamera } from 'react-native-camera';
 import { FormSaveBarCode } from '@components/Forms/FormSaveBarCode';
 import { FromEnterBarcode } from '@components/Forms/FromEnterBarcode';
+import ColectorScreem from './ModalBarcodeReader/ColectorScreem';
 import COLORS from '@constants/colors';
-import GlobalStyle from '@styles/global';
 import { Actions } from 'react-native-router-flux';
 
 export default function ModalBarcodeReader(props) {
@@ -14,6 +14,27 @@ export default function ModalBarcodeReader(props) {
   const [barcodescanned, setbarCodeScanned] = useState(null);
   const [typeEntreBarcode, setTypeEntreBarcode] = useState(1);
   const [flashMode, setFlashMode] = useState(1);
+  const [tipoLeitura, setTipoLeitura] = useState("");
+
+  const getSettings = async () => {
+      try {
+          const value = await AsyncStorage.getItem('SETTINGS');
+
+          if (value !== null) {
+              let settings = JSON.parse(value);
+              if ( settings.dispositivo_leitura == "coletor" ) {
+                  setTipoLeitura("coletor");
+              } else {
+                setTipoLeitura("camera");
+              }
+          } else {
+            setTipoLeitura("camera");
+          }
+      }
+      catch(e) {
+          console.log(e);
+      }
+  }
 
   let [camera, setCamera] = useState(
     {
@@ -32,11 +53,20 @@ export default function ModalBarcodeReader(props) {
     setScanned(false);
     setbarCodeScanned(null);
     setTypeEntreBarcode(1);
+    Keyboard.dismiss();
+    Actions.refresh({key: Math.random(), origin: props.origin});
   };
+
+  useEffect(() => {
+      getSettings();
+  }, [])
+
 
   if ( !scanned && typeEntreBarcode == 1) {
     return (
       <View style={styles.container}>
+      {tipoLeitura == "camera" && 
+        <>
         <RNCamera
             ref={ref => {
               camera = ref;
@@ -47,14 +77,24 @@ export default function ModalBarcodeReader(props) {
             onBarCodeRead={handleBarCodeScanned}
             onFocusChanged={() => {}}
             onZoomChanged={() => {}}
-            permissionDialogTitle={'Permissão para usar a câmera'}
-            permissionDialogMessage={'Precisamos da sua permissão para usar o telefone com câmera'}
+            //permissionDialogTitle={'Permissão para usar a câmera'}
+            //permissionDialogMessage={'Precisamos da sua permissão para usar o telefone com câmera'}
             style={styles.preview}
             type={camera.type}
         />
         <View style={[styles.overlay, styles.topOverlay]}>
           <Text style={styles.scanScreenMessage}>Mire a câmera em um código de barras.</Text>
         </View>
+        </>
+      }
+      {tipoLeitura == "coletor" && 
+        <>
+          <ColectorScreem setScanned={setScanned} handleBarCodeScanned={handleBarCodeScanned} />
+          <View style={[styles.overlay, styles.topOverlay]}>
+            <Text style={styles.scanScreenMessage}>Aguardando Leitura</Text>
+          </View>
+        </>
+      }
         <View style={[styles.overlay, styles.bottomOverlay]}>
           <Button
             onPress={() => { Actions.pop(); }}

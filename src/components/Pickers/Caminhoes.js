@@ -1,6 +1,7 @@
 import RNPickerSelect from 'react-native-picker-select';
 import React from 'react';
-import {StyleSheet, AsyncStorage} from 'react-native';
+import {StyleSheet} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import COLORS from '@constants/colors';
 import { connect} from 'react-redux';
  

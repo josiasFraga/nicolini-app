@@ -3,9 +3,9 @@ import {
   StyleSheet,
   View,
   StatusBar,
-  AsyncStorage,
   TouchableOpacity
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ListItem, Text, Icon, Image } from 'react-native-elements';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'; // remove PROVIDER_GOOGLE import if not using Google Maps
 

@@ -2,7 +2,9 @@
 
  import React, { useState, useEffect } from 'react';
 
- import { AsyncStorage, TextInput, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+ import { View, Text, StyleSheet, TouchableOpacity, Keyboard } from 'react-native';
+ import AsyncStorage from '@react-native-async-storage/async-storage';
+ import { Input } from 'react-native-elements';
 
  import { Formik } from 'formik';
  import GlobalStyle from '@styles/global';
@@ -10,9 +12,11 @@
 import { useDispatch } from 'react-redux';
 
  export const FormSaveBarCode = (props) => {
+    const input = React.createRef();
 
     const dispatch = useDispatch();
     const [n_itens, setNItens] = useState(0);
+    const [productName, setProductName] = useState("");
     const backToScanner = props.backToScanner;
 
     let db_table = "CODIGOS_AVULSOS";
@@ -20,6 +24,73 @@ import { useDispatch } from 'react-redux';
     if ( props.origin && props.origin == "separacao_central") {
        db_table = "CODIGOS_CENTRAL";
     }
+
+    if ( props.origin && props.origin == "coletagem_invert") {
+       db_table = "CODIGOS_INVERT";
+    }
+
+    useEffect(async () => {
+
+        if ( props.barcodescanned == null || props.barcodescanned == "" ) {
+            return false;
+        }
+
+        if ( db_table == "CODIGOS_CENTRAL" ) {
+
+            try {
+                const value = await AsyncStorage.getItem('UPLOADED_FILE_CENTRAL_COLLECTION');
+      
+                if (value !== null) {
+                  let produtos = JSON.parse(value);
+      
+                  const product = produtos.filter((produto) => {
+                      return produto.cod_barras == props.barcodescanned;
+                  })
+      
+                  if ( product.length == 0 ) {
+                    setProductName("");
+                  } else {
+                    setProductName(product[0]["produto"]);
+                  }                  
+                  
+           
+                } else {
+                    setProductName("");
+                }
+              } catch (error) {
+                  console.log(error);
+                  setProductName("");
+              }
+        }
+
+        if ( db_table == "CODIGOS_INVERT" ) {
+
+            try {
+                const value = await AsyncStorage.getItem('UPLOADED_FILE_INVERT_COLLECTION');
+      
+                if (value !== null) {
+                  let produtos = JSON.parse(value);
+      
+                  const product = produtos.filter((produto) => {
+                      return produto.cod_barras == props.barcodescanned;
+                  })
+      
+                  if ( product.length == 0 ) {
+                    setProductName("");
+                  } else {
+                    setProductName(product[0]["produto"]);
+                  }                  
+                  
+           
+                } else {
+                    setProductName("");
+                }
+              } catch (error) {
+                  console.log(error);
+                  setProductName("");
+              }
+        }
+    }, [props.barcodescanned]);
 
     let _contaItens = async (code) => {
         try {
@@ -47,7 +118,14 @@ import { useDispatch } from 'react-redux';
 
     const _checkCodeExistsInFile = async (bar_code) => {
         try {
-          const value = await AsyncStorage.getItem('UPLOADED_FILE_CENTRAL_COLLECTION');
+
+            let file_name = 'UPLOADED_FILE_CENTRAL_COLLECTION';
+
+            if ( props.origin && props.origin == "coletagem_invert") {
+                file_name = "UPLOADED_FILE_INVERT_COLLECTION";
+            }
+    
+          const value = await AsyncStorage.getItem(file_name);
 
           if (value !== null) {
             let produtos = JSON.parse(value);
@@ -124,40 +202,57 @@ import { useDispatch } from 'react-redux';
 
             const value = await AsyncStorage.getItem(db_table);
             let codigos = [];
+            const qtd_digitada = item.qtd;
 
             if (value !== null) {
                 // We have data!!
                 codigos = JSON.parse(value)
             }
 
-            if ( file_register.loja && file_register.pedido ) {
+            if ( db_table != "CODIGOS_AVULSOS" ) {
                 item = file_register;
                 item.barcodescanned = item.cod_barras;
                 delete item.cod_barras;
-            }
+            }            
 
-            codigos.push(item);
+            //procura o código de barras na lista lida
+            const searchCodeInList = codigos.filter((item_lista, index) => {
+                return item_lista.barcodescanned == item.barcodescanned;
+            });
 
-            
-            //adiciona a quantidade nos duplicados se houver
-            let aggrupedItens = []
-            aggrupedItens = Object.values(codigos.reduce((acc, item) => {
-                if (!acc[item.barcodescanned]) {
-                    acc[item.barcodescanned] = {
-                        barcodescanned: item.barcodescanned,
-                        qtd: parseFloat(item.qtd),
-                        loja: item.loja,
-                        pedido: item.pedido,
-                    };
-                } else {
-                    acc[item.barcodescanned].qtd += parseFloat(item.qtd);
+            //se não achou o produto, adiciona na lista lida
+            if ( searchCodeInList.length == 0 ) {
+                
+                let itemToAdd = {
+                    barcodescanned: item.barcodescanned,
+                    qtd: parseFloat(qtd_digitada),
+                };
+
+                if ( item.loja ) {
+                    itemToAdd.loja = item.loja;
                 }
-                return acc;
-            }, {}))
+
+                if ( item.pedido ) {
+                    itemToAdd.pedido = item.pedido;
+                }
+
+                if ( item.produto ) {
+                    itemToAdd.produto = item.produto;
+                }
+    
+                codigos.push(itemToAdd);
+
+            } //se achou o item na lista lida, atualiza a quantidade
+            else {
+                codigos = codigos.map((item_lista, index) => {
+                    item_lista.qtd = item_lista.qtd + parseFloat(qtd_digitada);
+                    return item_lista;
+                });
+            }
 
             await AsyncStorage.setItem(
                 db_table,
-                JSON.stringify(aggrupedItens)
+                JSON.stringify(codigos)
             );
             
             dispatch({
@@ -167,6 +262,11 @@ import { useDispatch } from 'react-redux';
             
             dispatch({
                 type: 'LOAD_CENTRAL_COLLECTION_DATA',
+                payload: {}
+            })
+            
+            dispatch({
+                type: 'LOAD_INVERT_COLLECTION_DATA',
                 payload: {}
             })
 
@@ -188,10 +288,10 @@ import { useDispatch } from 'react-redux';
 
    <Formik
 
-     initialValues={{ qtd: '1' }}
+     initialValues={{ qtd: '0' }}
 
      onSubmit={async (values) => {
-         let bcs = props.barcodescanned;
+         let bcs = props.barcodescanned.trim();
          let file_exists = {};
          if ( db_table == "CODIGOS_CENTRAL") {
             file_exists = await _checkCodeExistsInFile(bcs);
@@ -217,7 +317,26 @@ import { useDispatch } from 'react-redux';
                 return false;
 
             }
-         } 
+         }
+         if ( db_table == "CODIGOS_INVERT") {
+            file_exists = await _checkCodeExistsInFile(bcs);
+            if ( !file_exists ) {
+
+                AlertHelper.show(
+                    'info',
+                    'Atenção!',
+                    'O produto ' + bcs + ' não existe na lista',
+                );
+                return false;
+
+            }
+
+         }
+
+         input.current.blur();
+
+         console.log(values.qtd);
+         console.log(file_exists);
 
          _storeData({'qtd': values.qtd, 'barcodescanned': bcs}, file_exists)
     }}
@@ -229,21 +348,26 @@ import { useDispatch } from 'react-redux';
        <View style={[GlobalStyle.secureMargin, GlobalStyle.fullyScreem]}>
            <View style={[GlobalStyle.contentVerticalMiddle, GlobalStyle.fullyScreem, GlobalStyle.row]}>
             <View style={{flex: 1}}>
+                {productName != "" && 
+                <Text style={styles.barcode}>{productName}</Text>
+                }
                 <Text style={styles.barcode}>{props.barcodescanned} - {n_itens}</Text>
                 <View style={[GlobalStyle.column, {alignItems: 'center', marginTop: 30}]}>
-                    <View>                        
+                    <View>
 
-                        <TextInput
+                        <Input
                             name={"qtd"}
                             onChangeText={handleChange("qtd")}
                             onBlur={handleBlur("qtd")}
                             value={values.qtd}
+                            ref={input}
                             autoFocus
+                            //showSoftInputOnFocus={false}
                             keyboardType={"numeric"}
                             maxLength={6}
                             placeholder={'Digite a quatidade'}
                             returnKeyType="next"
-                            style={{ height: 70, width:80, borderColor: 'gray', borderWidth: 1, textAlign: 'center', fontSize: 35, borderRadius: 30 }}
+                            inputContainerStyle={{ height: 70, width:80, borderColor: 'gray', borderWidth: 1, textAlign: 'center', fontSize: 35, borderRadius: 30 }}
 
 
                         />
@@ -254,7 +378,11 @@ import { useDispatch } from 'react-redux';
 				<View style={GlobalStyle.spaceSmall} />
                 <View>
                     <TouchableOpacity
-                    onPress={()=>{handleSubmit()}} 
+                    onPress={()=>{
+                        Keyboard.dismiss();
+                        input.current.blur();
+                        handleSubmit()
+                    }} 
                     style={GlobalStyle.defaultButton}
 					>
                     <Text style={GlobalStyle.defaultButtonText}>Confirmar</Text>
@@ -262,7 +390,11 @@ import { useDispatch } from 'react-redux';
                 </View>
                 <View>
                     <TouchableOpacity
-                    onPress={()=>{backToScanner()}} 
+                    onPress={()=>{
+                        Keyboard.dismiss();
+                        input.current.blur();
+                        backToScanner()
+                    }} 
                     style={[GlobalStyle.clearCircleButton, {alignSelf: 'center', paddingHorizontal: 30, borderRadius: 15, height: 50}]}
                     >
                     <Text style={[GlobalStyle.clearCircleButtonText, {borderRadius: 3}]}>Cancelar</Text>

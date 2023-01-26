@@ -2,11 +2,11 @@
 
  import React, { useState, useEffect, useRef } from 'react';
 
- import { AsyncStorage, TextInput, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+ import { TextInput, View, Text, StyleSheet, TouchableOpacity, Keyboard } from 'react-native';
+ import AsyncStorage from '@react-native-async-storage/async-storage';
 
  import { Formik } from 'formik';
  import GlobalStyle from '@styles/global';
- import AlertHelper from '@components/Alert/AlertHelper';
 
  export const FromEnterBarcode = (props) => {
     const refContainer = useRef(TextInput);
@@ -14,20 +14,18 @@
     const validate = (values, props /* only available when using withFormik */) => {
 
         const errors = {};
-    
      
         if (!values.codeEntered || values.codeEntered == '') {     
           errors.codeEntered = 'Digite o código de barras';     
         }
     
-     
         return errors;
      
       };
     return(
 
    <Formik
-   validate={validate}
+     validate={validate}
      initialValues={{ codeEntered: '' }}
 
      onSubmit={(values) => {
@@ -50,25 +48,17 @@
                         <TextInput
                         name={"codeEntered"}
                         onChangeText={handleChange('codeEntered')}
-
                         onBlur={handleBlur('codeEntered')}
-
                         value={values.codeEntered}
-
                         autoFocus
-                       
-
+                        //showSoftInputOnFocus={false}
                         keyboardType={"numeric"}
                         ref={refContainer}
-
                         maxLength={13}
                         minLength={5}
-
                         placeholder={'Digite o código de barras aqui'}
                         returnKeyType="next"
                         style={{ height: 70, borderColor: 'gray', borderWidth: 1, textAlign: 'center', fontSize: 35, borderRadius: 30 }}
-
-
                         />
                     </View>
 
@@ -77,14 +67,20 @@
 				<View style={GlobalStyle.spaceSmall} />
                 <View>
                     <TouchableOpacity
-                    onPress={()=>{handleSubmit()}} 
+                    onPress={()=>{
+                        Keyboard.dismiss();
+                        handleSubmit()}
+                    } 
                     style={GlobalStyle.defaultButton}
 					>
                     <Text style={GlobalStyle.defaultButtonText}>Confirmar</Text>
                     </TouchableOpacity>
                     
                     <TouchableOpacity
-                    onPress={()=>{props.backToScanner()}} 
+                    onPress={()=>{
+                        Keyboard.dismiss();
+                        props.backToScanner()
+                    }} 
                     style={[GlobalStyle.clearCircleButton, {alignSelf: 'center', paddingHorizontal: 30, borderRadius: 15, height: 50}]}
 					>
                     <Text style={[GlobalStyle.clearCircleButtonText, {borderRadius: 3}]}>Voltar ao scanner</Text>

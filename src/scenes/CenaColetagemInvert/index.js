@@ -77,7 +77,16 @@ export class CenaColetagemInvert extends Component<Props> {
 		}
 
 
-		let content = await RNFS.readFile(file[0].fileCopyUri, 'utf8');
+		let content = "";
+
+		console.info("Lendo arquivo...")
+
+		try{
+			content = await RNFS.readFile(file[0].fileCopyUri, 'utf8')
+		} catch(e){
+			content = await RNFS.readFile(file[0].fileCopyUri, 'ascii')
+		}
+
 		let content_lines = content.split(/\r?\n/);
 		let content_to_save = [];
 		let ignored_items = [];

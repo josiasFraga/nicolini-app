@@ -222,6 +222,16 @@ import { useDispatch } from 'react-redux';
 
             //se não achou o produto, adiciona na lista lida
             if ( searchCodeInList.length == 0 ) {
+
+                if ( parseFloat(qtd_digitada) < 0 ) {
+                    AlertHelper.show(
+                        'warning',
+                        'Atenção',
+                        'A quantidade não pode ser inferior a 0',
+                    );
+                    return false;
+
+                }
                 
                 let itemToAdd = {
                     barcodescanned: item.barcodescanned,
@@ -244,10 +254,28 @@ import { useDispatch } from 'react-redux';
 
             } //se achou o item na lista lida, atualiza a quantidade
             else {
-                codigos = codigos.map((item_lista, index) => {
-                    item_lista.qtd = item_lista.qtd + parseFloat(qtd_digitada);
+                
+                let stop_code = false;
+                codigos = codigos.map((item_lista) => {
+
+                    const new_qtd = item_lista.qtd + parseFloat(qtd_digitada);
+    
+                    if (  new_qtd < 0 ) {
+                        AlertHelper.show(
+                            'warning',
+                            'Atenção',
+                            'A quantidade não pode ser inferior a 0',
+                        );
+                        stop_code = true;
+                    }
+    
+                    item_lista.qtd = new_qtd;
                     return item_lista;
                 });
+
+                if ( stop_code ) {
+                    return false;
+                }
             }
 
             await AsyncStorage.setItem(
@@ -352,7 +380,7 @@ import { useDispatch } from 'react-redux';
                 <Text style={styles.barcode}>{productName}</Text>
                 }
                 <Text style={styles.barcode}>{props.barcodescanned} - {n_itens}</Text>
-                <View style={[GlobalStyle.column, {alignItems: 'center', marginTop: 30}]}>
+                <View style={[GlobalStyle.column, {alignItems: 'center', marginTop: 5}]}>
                     <View>
 
                         <Input
@@ -374,8 +402,6 @@ import { useDispatch } from 'react-redux';
                     </View>
 
                 </View>
-
-				<View style={GlobalStyle.spaceSmall} />
                 <View>
                     <TouchableOpacity
                     onPress={()=>{

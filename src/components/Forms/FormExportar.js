@@ -278,23 +278,9 @@
           let texto = '';
           let countCodes = 1;
           //let codesToFile = codigos;
-          var codesToFile = [];
           
-          codesToFile = Object.values(codigos.reduce((acc, item) => {
-
-              if (!acc[item.barcodescanned]) {
-                  acc[item.barcodescanned] = {
-                      barcodescanned: item.barcodescanned,
-                      qtd: parseFloat(item.qtd),
-                  };
-              } else {
-                  acc[item.barcodescanned].qtd += parseFloat(item.qtd);
-              }
-              return acc;
-          }, {}));
-
-          for(let codigo of codesToFile) {
-
+    
+          for(let codigo of codigos) {
 
                let qtd = codigo.qtd;
                qtd = _.padStart(qtd, 6, '0');
@@ -311,11 +297,14 @@
               
           }
 
+          console.log(texto);
+
           let filename = 'inv006michaelA.txt';
 
           let path = RNFS.DownloadDirectoryPath + '/'+filename;
           console.log(path);
           
+          console.log("Tentando salvar em uft8...");
 
           RNFS.writeFile(path, texto, 'utf8')
           .then((success) => {
@@ -332,12 +321,32 @@
               Actions.pop();
           })
           .catch((err) => {
-               console.log(err);
-              AlertHelper.show(
-                  'error',
-                  'Erro',
-                  'Ocorreu um erro ao escrever o arquivo',
-              );
+            console.log("...não deu");
+            console.log("Tentando salvar em ascii...");
+            
+            RNFS.writeFile(path, texto, 'ascii')
+            .then((success) => {
+                AlertHelper.show(
+                    'success',
+                    'Tudo Certo',
+                    'Arquivo Exportado Com Sucesso!',
+                );
+                Share.open({
+                    title: "Compartilhar Arquivo ",
+                    url: "file://"+path,
+                })
+                
+                Actions.pop();
+            })
+            .catch((err) => {
+                console.log(err);
+                AlertHelper.show(
+                    'error',
+                    'Erro',
+                    'Ocorreu um erro ao escrever o arquivo',
+                );
+            });
+
           });
  
         } else {

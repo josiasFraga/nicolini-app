@@ -131,6 +131,16 @@
             let path = RNFS.DownloadDirectoryPath + '/'+filename;
             console.log(RNFS.DownloadDirectoryPath + '/aaaaaaaaaaaaaa.txt','hffghfgh','utf8');
 
+            RNFS.exists(path).then((success) => {
+
+                if (success) {
+                    console.log("arquivo excluido");
+                    RNFS.unlink(path).then(() => {
+                    })
+                 }
+
+            }).catch();
+
             RNFS.writeFile(path, texto, 'utf8')
             .then((success) => {
                 AlertHelper.show(
@@ -224,6 +234,16 @@
 
            let path = RNFS.DownloadDirectoryPath + '/'+filename;
            console.log(path);
+
+           RNFS.exists(path).then((success) => {
+
+               if (success) {
+                   console.log("arquivo excluido");
+                   RNFS.unlink(path).then(() => {
+                   })
+                }
+
+           }).catch();
            
 
            RNFS.writeFile(path, texto, 'utf8')
@@ -296,13 +316,29 @@
               countCodes++;
               
           }
+          
+          var date = new Date().getDate(); //To get the Current Date
+            var month = new Date().getMonth() + 1; //To get the Current Month
+            var year = new Date().getFullYear(); //To get the Current Year
+            var hours = new Date().getHours(); //To get the Current Hours
+            var min = new Date().getMinutes(); //To get the Current Minutes
+            var sec = new Date().getSeconds(); //To get the Current Seconds
 
-          console.log(texto);
 
-          let filename = 'inv006michaelA.txt';
+          let filename = `${date}_${month}_${year}__${hours}_${min}_${sec}.txt`;
 
           let path = RNFS.DownloadDirectoryPath + '/'+filename;
           console.log(path);
+
+          RNFS.exists(path).then((success) => {
+
+              if (success) {
+                  console.log("arquivo excluido");
+                  RNFS.unlink(path).then(() => {
+                  })
+               }
+
+          }).catch();
           
           console.log("Tentando salvar em uft8...");
 

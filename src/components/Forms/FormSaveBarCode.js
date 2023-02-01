@@ -232,6 +232,8 @@ import { useDispatch } from 'react-redux';
                     return false;
 
                 }
+
+                console.log('não achou o produto na lista, adicionando - ' + item.barcodescanned + ' - ' + parseFloat(qtd_digitada));
                 
                 let itemToAdd = {
                     barcodescanned: item.barcodescanned,
@@ -258,18 +260,22 @@ import { useDispatch } from 'react-redux';
                 let stop_code = false;
                 codigos = codigos.map((item_lista) => {
 
-                    const new_qtd = item_lista.qtd + parseFloat(qtd_digitada);
-    
-                    if (  new_qtd < 0 ) {
-                        AlertHelper.show(
-                            'warning',
-                            'Atenção',
-                            'A quantidade não pode ser inferior a 0',
-                        );
-                        stop_code = true;
+                    if ( item_lista.barcodescanned == item.barcodescanned ) {
+
+                        const new_qtd = item_lista.qtd + parseFloat(qtd_digitada);
+        
+                        if (  new_qtd < 0 ) {
+                            AlertHelper.show(
+                                'warning',
+                                'Atenção',
+                                'A quantidade não pode ser inferior a 0',
+                            );
+                            stop_code = true;
+                        }
+        
+                        item_lista.qtd = new_qtd;
+
                     }
-    
-                    item_lista.qtd = new_qtd;
                     return item_lista;
                 });
 
@@ -443,7 +449,7 @@ import { useDispatch } from 'react-redux';
 
  const styles = StyleSheet.create({
     barcode: {
-        fontSize: 20,
+        fontSize: 16,
         textAlign: 'center'
     }
  });

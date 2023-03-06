@@ -79,27 +79,86 @@ export class CenaSeparacaoCentral extends Component<Props> {
 
 			return false;
 		}
+		
+		let content = '';
 
+		try{
+			content = await RNFS.readFile(file[0].fileCopyUri, 'utf8');
+		} catch (e) {
+			console.log('Erro ao ler o documento como UTF-8');
+			console.log(e);
+			console.log('Tentado ler em outra codificação');
+			try{
+				content = await RNFS.readFile(file[0].fileCopyUri, 'ascii');
+				console.log(content);
+			} catch (e2) {
+				console.log('Erro ao ler o documento');
 
-		let content = await RNFS.readFile(file[0].fileCopyUri, 'utf8');
+				AlertHelper.show(
+					'error',
+					'Erro',
+					'Erro ao ler o documento',
+				);
+			}
+		}
+	
 		let content_lines = content.split(/\r?\n/);
 		let content_to_save = [];
 		let ignored_items = [];
 
 		content_lines.map((ct) => {
+		
+			let loja = '';
+			let pedido = '';
+			let cod_interno = '';
+			let cod_barras = '';
+			let produto = '';
+			let quatidade = '';
+			let rest = '';
 
-			if ( ct.length < 87 ) {
+			if ( ct.length == 87 ) {
+				loja = ct.substring(0, 4);
+				pedido = ct.substring(4, 10);
+				cod_interno = ct.substring(10, 28);
+				cod_barras = ct.substring(28, 41);
+				produto = ct.substring(41, 73);
+				quatidade = ct.substring(73, 79);
+				rest = ct.substring(79, 87);
+			}
+
+			else if ( ct.length == 86 ) {
+				loja = ct.substring(0, 4);
+				pedido = ct.substring(4, 10);
+				cod_interno = ct.substring(10, 28);
+				cod_barras = ct.substring(28, 40);
+				produto = ct.substring(40, 72);
+				quatidade = ct.substring(72, 78);
+				rest = ct.substring(78, 86);
+			}
+			else if ( ct.length == 85 ) {
+				loja = ct.substring(0, 4);
+				pedido = ct.substring(4, 10);
+				cod_interno = ct.substring(10, 28);
+				cod_barras = ct.substring(28, 39);
+				produto = ct.substring(39, 71);
+				quatidade = ct.substring(71, 77);
+				rest = ct.substring(77, 85);
+			}
+			else if ( ct.length == 84 ) {
+				loja = ct.substring(0, 4);
+				pedido = ct.substring(4, 10);
+				cod_interno = ct.substring(10, 28);
+				cod_barras = ct.substring(28, 38);
+				produto = ct.substring(38, 70);
+				quatidade = ct.substring(70, 76);
+				rest = ct.substring(76, 84);
+			}
+			else {
+				console.log(ct.length);
+				console.log(ct);
 				ignored_items.push(ct);
 				return false;
 			}
-
-			let loja = ct.substring(0, 4);
-			let pedido = ct.substring(4, 10);
-			let cod_interno = ct.substring(10, 28);
-			let cod_barras = ct.substring(28, 41);
-			let produto = ct.substring(41, 73);
-			let quatidade = ct.substring(73, 79);
-			let rest = ct.substring(79, 87);
 
 			if ( loja != "" ) {
 				content_to_save.push({

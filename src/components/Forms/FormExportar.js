@@ -309,7 +309,7 @@
                      
                texto += barCd + qtd + '.00';
 
-              if ( countCodes < codigos.length) {
+              if ( countCodes <= codigos.length) {
                   texto += '\r\n';
               }
 

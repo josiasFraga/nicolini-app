@@ -4,6 +4,7 @@
 
  import { TextInput, View, Text, StyleSheet, TouchableOpacity, PermissionsAndroid } from 'react-native';
  import AsyncStorage from '@react-native-async-storage/async-storage';
+ import { CheckBox } from 'react-native-elements'
 
  import {Actions} from 'react-native-router-flux';
  import { Formik } from 'formik';
@@ -74,7 +75,7 @@
        db_table = "CODIGOS_INVERT";
     }
  
-     let _exportData = async (nota='') => {
+     let _exportData = async (nota='', tipo) => {
     
         try {
           const value = await AsyncStorage.getItem(db_table);
@@ -101,7 +102,8 @@
             for(let codigo of codesToFile) {
 
                 let qtd = codigo.qtd;
-                qtd = _.padStart(qtd, 6, '0');
+                let qtd_pad_start = tipo == 'avulsa' ? 6 : 7;
+                qtd = _.padStart(qtd, qtd_pad_start, '0');
                 let barCd = codigo.barcodescanned;
                 barCd = _.padStart(barCd, 13, '0');
                 
@@ -121,12 +123,14 @@
                 
             }
 
-            let filename = '';
-            if ( nota != '' )
-                filename = 'COMPRA01.txt';
-            else {
-                filename = 'COMPRA01.txt';
-            }
+            var date = new Date().getDate(); //To get the Current Date
+            var month = new Date().getMonth() + 1; //To get the Current Month
+            var year = new Date().getFullYear(); //To get the Current Year
+            var hours = new Date().getHours(); //To get the Current Hours
+            var min = new Date().getMinutes(); //To get the Current Minutes
+            var sec = new Date().getSeconds(); //To get the Current Seconds
+  
+            let filename = `COMPRA01_${date}_${month}_${year}__${hours}_${min}_${sec}.txt`;
 
             let path = RNFS.DownloadDirectoryPath + '/'+filename;
             console.log(RNFS.DownloadDirectoryPath + '/aaaaaaaaaaaaaa.txt','hffghfgh','utf8');
@@ -230,7 +234,14 @@
                
            }
 
-           let filename = 'PEDIDOCF.txt';
+           var date = new Date().getDate(); //To get the Current Date
+           var month = new Date().getMonth() + 1; //To get the Current Month
+           var year = new Date().getFullYear(); //To get the Current Year
+           var hours = new Date().getHours(); //To get the Current Hours
+           var min = new Date().getMinutes(); //To get the Current Minutes
+           var sec = new Date().getSeconds(); //To get the Current Seconds
+ 
+           let filename = `${date}_${month}_${year}__${hours}_${min}_${sec}.txt`;
 
            let path = RNFS.DownloadDirectoryPath + '/'+filename;
            console.log(path);
@@ -410,7 +421,7 @@
 
    <Formik
 
-     initialValues={{ nota: '' }}
+     initialValues={{ nota: '', tipo: 'avulsa' }}
 
      onSubmit={async (values) => {
 
@@ -435,7 +446,7 @@
         }
 
         if ( db_table == "CODIGOS_AVULSOS" ) {
-            _exportData(values.nota)
+            _exportData(values.nota, values.tipo)
 
         } else if ( db_table == "CODIGOS_INVERT" ) {
             _exportDataInvert()
@@ -447,7 +458,9 @@
 
    >
 
-     {({ handleChange, handleBlur, handleSubmit, values }) => (
+     {({ handleChange, handleBlur, handleSubmit, setFieldValue, values }) => {
+        console.log(values);
+     return(
 
        <View style={[GlobalStyle.secureMargin, GlobalStyle.fullyScreem]}>
            <View style={[GlobalStyle.contentVerticalMiddle, GlobalStyle.fullyScreem, GlobalStyle.row]}>
@@ -458,24 +471,31 @@
                     <View>                        
 
                         <TextInput
-
-                        onChangeText={handleChange('nota')}
-
-                        onBlur={handleBlur('nota')}
-
-                        value={values.nota}
-
-                        autoFocus
-
-                        keyboardType={"decimal-pad"}
-
-                        maxLength={80}
-
-                        placeholder={'Digite o nº da nota'}
-                        returnKeyType="next"
-                        style={{ height: 70, width: '100%', borderColor: 'gray', borderWidth: 1, textAlign: 'center', fontSize: 35, borderRadius: 30 }}
-
-
+                            onChangeText={handleChange('nota')}
+                            onBlur={handleBlur('nota')}
+                            value={values.nota}
+                            autoFocus
+                            keyboardType={"decimal-pad"}
+                            maxLength={80}
+                            placeholder={'Digite o nº da nota'}
+                            returnKeyType="next"
+                            style={{ height: 70, width: '100%', borderColor: 'gray', borderWidth: 1, textAlign: 'center', fontSize: 35, borderRadius: 30 }}
+                        />
+                        
+                        <CheckBox
+                            title='Coletagem Avulsa'
+                            checkedIcon='dot-circle-o'
+                            uncheckedIcon='circle-o'
+                            checked={values.tipo == 'avulsa'}
+                            onPress={() => setFieldValue('tipo', 'avulsa')}
+                        />
+                        
+                        <CheckBox
+                            title='Endereçamento'
+                            checkedIcon='dot-circle-o'
+                            uncheckedIcon='circle-o'
+                            checked={values.tipo == 'enderecamento'}
+                            onPress={() => setFieldValue('tipo', 'enderecamento')}
                         />
                     </View>}
 
@@ -499,7 +519,7 @@
 
        </View>
 
-     )}
+     )}}
 
    </Formik>
 

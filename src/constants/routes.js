@@ -11,6 +11,8 @@ import ModalBarcodeReader from '@components/Modals/ModalBarcodeReader';
 import ModalExportar from '@components/Modals/ModalExportar';
 import CenaColetagemInvert from '@scenes/CenaColetagemInvert';
 import CenaListaItensLidos from '@scenes/CenaListaItensLidos';
+import CenaLoja from '@scenes/CenaLoja';
+import CenaDeposito from '@scenes/CenaDeposito';
 
 class Routes extends React.Component {
   render() {
@@ -29,6 +31,20 @@ class Routes extends React.Component {
             key="home"
             title="Home"
             component={CenaHome}
+            hideNavBar={true}
+          />
+
+          <Scene
+            key="loja"
+            title="Loja"
+            component={CenaLoja}
+            hideNavBar={true}
+          />
+
+          <Scene
+            key="deposito"
+            title="Depósito"
+            component={CenaDeposito}
             hideNavBar={true}
           />
 

@@ -5,17 +5,16 @@ import {
 	StatusBar,
 	Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Button, Text, Icon, Image } from 'react-native-elements';
 import {Actions, ActionConst} from 'react-native-router-flux';
 import GlobalStyle from '@styles/global';
-import AlertHelper from '@components/Alert/AlertHelper';
+import Header from '@components/Header';
 
 import IMAGES from '@constants/images';
 import COLORS from '@constants/colors';
 
 type Props = {};
-export default class CenaHome extends Component<Props> {
+export default class CenaDeposito extends Component<Props> {
 	render() {
 		console.log('entrou auqi');
 		return (
@@ -25,26 +24,25 @@ export default class CenaHome extends Component<Props> {
 					backgroundColor={'transparent'}
 					barStyle={'dark-content'}
 				/>
-				<View style={styles.imageContainer}>
-					<Image source={IMAGES.LOGO} style={{ width: 150, height: 120 }} />
-				</View>
+                <Header backButton={true} titulo={"Depósito"} />
 				<View style={[GlobalStyle.secureMargin, {flex: 1, justifyContent: 'flex-end'}]}>
+	
 					<View style={styles.innerSpace}>
 						<Button
 							icon={
 								<View style={{marginRight: 20}}>
 								<Icon
-								name="store-outline"
-								size={23}
-								type='material-community'
+								name="barcode"
+								size={20}
+								type='antdesign'
 								iconStyle={{color: COLORS.secondary}}
 								/>
 								</View>
 							}
 							titleStyle={{}}
 							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
-							title="Loja"
-							onPress={() => { Actions.loja(); }}
+							title="Separação Central"
+							onPress={() => { Actions.separacaoCentral(); }}
 						/>
 					</View>
 					<View style={styles.innerSpace}>
@@ -52,35 +50,17 @@ export default class CenaHome extends Component<Props> {
 							icon={
 								<View style={{marginRight: 20}}>
 								<Icon
-								name="warehouse"
+								name="barcode"
 								size={20}
-								type='material-community'
+								type='antdesign'
 								iconStyle={{color: COLORS.secondary}}
 								/>
 								</View>
 							}
 							titleStyle={{}}
 							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
-							title="Depósito"
-							onPress={() => { Actions.deposito(); }}
-						/>
-					</View>
-					<View style={styles.innerSpace}>
-						<Button
-							icon={
-								<View style={{marginRight: 20}}>
-								<Icon
-								name="player-settings"
-								size={20}
-								type='fontisto'
-								iconStyle={{color: COLORS.secondary}}
-								/>
-								</View>
-							}
-							titleStyle={{}}
-							buttonStyle={{borderRadius: 25, paddingVertical: 10, backgroundColor: COLORS.primary}}
-							title="Configurações"
-							onPress={() => { Actions.configs(); }}
+							title="Coletagem Invert"
+							onPress={() => { Actions.coletagemInvert(); }}
 						/>
 					</View>
 				</View>

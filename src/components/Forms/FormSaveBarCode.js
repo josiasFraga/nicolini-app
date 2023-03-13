@@ -398,7 +398,7 @@ import { useDispatch } from 'react-redux';
                             autoFocus
                             //showSoftInputOnFocus={false}
                             keyboardType={"numeric"}
-                            maxLength={6}
+                            maxLength={db_table == "CODIGOS_AVULSOS" ? 7 : 6}
                             placeholder={'Digite a quatidade'}
                             returnKeyType="next"
                             inputContainerStyle={{ height: 70, width:80, borderColor: 'gray', borderWidth: 1, textAlign: 'center', fontSize: 35, borderRadius: 30 }}

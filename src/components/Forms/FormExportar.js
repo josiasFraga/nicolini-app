@@ -103,6 +103,11 @@
 
                 let qtd = codigo.qtd;
                 let qtd_pad_start = tipo == 'avulsa' ? 6 : 7;
+
+                if (tipo == 'avulsa' && qtd.toString().length > 6) {
+                    qtd = parseFloat(qtd.toString().substring(0, 6));
+                }
+    
                 qtd = _.padStart(qtd, qtd_pad_start, '0');
                 let barCd = codigo.barcodescanned;
                 barCd = _.padStart(barCd, 13, '0');

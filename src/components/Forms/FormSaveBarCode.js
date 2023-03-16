@@ -322,7 +322,7 @@ import { useDispatch } from 'react-redux';
 
    <Formik
 
-     initialValues={{ qtd: '0' }}
+     initialValues={{ qtd: '' }}
 
      onSubmit={async (values) => {
          let bcs = props.barcodescanned.trim();
